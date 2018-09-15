@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Animal Farm!</title>
+        <style>
+        #bg {
+            background-image: url("https://static.chrgd.ca/rendition/6404/1058/595");
+        
+
+            background-repeat: no-repeat;
+            background-size: cover;
+        }</style>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-3.1.1.js"></script>
+    	
+    </head>
+<body>
+
+<body id="bg">
+
+<h4 class="text-center" style="color:black">Click on a tab to search the animal.</h4>
+
+<div id="buttonItems"></div>
+<form>
+    <div class="row">
+        <div class="col-md-3">
+        </div>
+        <span id="entry" style="color: white; background: red"></span>
+    </div>
+</form>
+
+
+<div id="ratings"></div>
+<script type="text/javascript">
+	var animalArray = ["Cat", "Dog", "Lions", "Penguin", "Horse", "Turtle", "Squirrel", "Giraffe", "Sloth"];
+    var animalImage = "";
+function showButtons () {
+    $("#buttonItems").empty();
+    $("#animal-input").val("");
+    for (var i = 0; i < animalArray.length; i++) {
+        var button = $("<button class='btn btn-primary'>");
+        button.addClass("animal");
+        button.attr("animal-name", animalArray[i]);
+        button.text(animalArray[i]);
+        $("#buttonItems").append(button);
+        $("#buttonItems").append(" ");
+    }
+}
+showButtons();
+
+$(document).on("click", ".animal", display);
+function display() {
+
+    $("#entry").empty();
+    var animalSearch = $(this).attr("animal-name");
+
+    var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + animalSearch + "&limit=10&api_key=9osrYZqF7tHScICNvFapokDtlkuvQLzU";
+    $.ajax({ url: queryURL, method: "GET"}).done(function(response) {
+         for (var j = 0; j < response.data.length; j++) {
+            var active = response.data[j].images.fixed_width.url;
+            var still = response.data[j].images.fixed_width_still.url;
+            var rating = "Rating: " + (response.data[j].rating).toUpperCase();
+            var animalImage = $("<img>");
+            $("#ratings").css("color", "green");
+            var ratingDiv = $("<div id='ratingDiv'>" + rating + "</div>");
+            $(ratingDiv).css({"text-align":"center", "font-size":"20px", "width":"200", "display":"block"});
+            animalImage.attr({"active":active, "still":still, "src":still, "state":"still"});
+            var ratingAndImage = $("<div>");
+            $(ratingAndImage).css({"float":"left"});
+            $(ratingAndImage).prepend(ratingDiv, animalImage);
+            $("#ratings").prepend(ratingAndImage);
+            $(animalImage).on("click", function(event) {
+                $("#entry").empty();
+                
+                var state = $(this).attr("state");
+                var source = $(this).attr("src");
+                if (state === "still") {
+                $(this).attr("src", $(this).attr("active"));
+                $(this).attr("state", "active"); }
+                else {
+                $(this).attr("src", $(this).attr("still"));
+                $(this).attr("state", "still"); } 
+            });
+        }
+   });
+}
+</script>
+</body>
+</html>
